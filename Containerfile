@@ -36,13 +36,15 @@ RUN \
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
 
 
+
+# Set permissions on /etc/passwd and /home to allow arbitrary users to write
+RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
+
 RUN useradd user && \
     mkdir -p /home/user && \
     chown -R user:user /home/user && \
     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chsh -s $(which zsh) user
-
-RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
 
 USER user
 WORKDIR /home/user
