@@ -32,19 +32,15 @@ RUN \
 
 
 
-# Set permissions on /etc/passwd and /home to allow arbitrary users to write
-RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
 
 
-
-# Set permissions on /etc/passwd and /home to allow arbitrary users to write
-RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
-
-RUN useradd user && \
-    mkdir -p /home/user && \
-    chown -R user:user /home/user && \
+RUN useradd -m -d /workdir && \
+    chown -R user:user /workdir && \
     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chsh -s $(which zsh) user
+
+# Set permissions on /etc/passwd and /home to allow arbitrary users to write
+RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
 
 USER user
 WORKDIR /home/user
@@ -54,7 +50,7 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 
 ENV TERM=xterm-256color
 ENV SHELL=/usr/bin/zsh
-ENV HOME=/home/user
+ENV HOME=/workdir
 ENV ZSH_DISABLE_COMPFIX=1
 
 # nodejs 18 + VSCODE_NODEJS_RUNTIME_DIR are required on ubi9 based images
