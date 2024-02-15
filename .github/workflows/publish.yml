@@ -16,5 +16,5 @@ jobs:
 
       - name: Build the image
         run: |
-          docker build . --file $GITHUB_WORKSPACE/.devcontainer/Containerfile --tag ghcr.io/cidrblock/container-in-container:latest
-          docker push ghcr.io/cidrblock/container-in-container:latest
+          docker build . --file $GITHUB_WORKSPACE/Containerfile --tag ghcr.io/cidrblock/dev-spaces-container:latest
+          docker push ghcr.io/cidrblock/dev-spaces-container:latest
