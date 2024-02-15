@@ -34,7 +34,7 @@ RUN \
 
 
 
-RUN useradd -m -d /workdir && \
+RUN useradd -m -d /workdir user && \
     chown -R user:user /workdir && \
     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chsh -s $(which zsh) user
