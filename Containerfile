@@ -34,13 +34,13 @@ RUN \
 
 
 
-RUN useradd -m -d /workdir user && \
-    chown -R user:user /workdir && \
+RUN useradd -m -d /home/user user && \
     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chsh -s $(which zsh) user
 
 # Set permissions on /etc/passwd and /home to allow arbitrary users to write
-RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
+# RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
+RUN chmod -R g=u /etc/passwd /etc/group /home
 
 USER user
 WORKDIR /home/user
