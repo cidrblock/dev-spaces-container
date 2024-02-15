@@ -43,6 +43,7 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 ENV TERM=xterm-256color
 ENV SHELL=/usr/bin/zsh
 ENV HOME=/home/user
+# fix for zsh perms check
 ENV ZSH_DISABLE_COMPFIX=true
 
 # nodejs 18 + VSCODE_NODEJS_RUNTIME_DIR are required on ubi9 based images
