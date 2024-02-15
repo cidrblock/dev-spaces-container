@@ -42,6 +42,8 @@ RUN useradd user && \
     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chsh -s $(which zsh) user
 
+RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
+
 USER user
 WORKDIR /home/user
 
@@ -62,3 +64,4 @@ export NVM_DIR="$HOME/.nvm" && \
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
 nvm install 18.18.0
 ENV VSCODE_NODEJS_RUNTIME_DIR="$HOME/.nvm/versions/node/v18.18.0/bin/"
+
