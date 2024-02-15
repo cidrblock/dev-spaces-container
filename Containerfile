@@ -39,8 +39,7 @@ RUN useradd -m -d /home/user user && \
     chsh -s $(which zsh) user
 
 # Set permissions on /etc/passwd and /home to allow arbitrary users to write
-# RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
-RUN chmod -R g=u /etc/passwd /etc/group /home
+RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
 
 USER user
 WORKDIR /home/user
