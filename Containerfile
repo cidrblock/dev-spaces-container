@@ -31,6 +31,11 @@ RUN \
     rm -rf "${TEMP_DIR}"
 
 
+
+# Set permissions on /etc/passwd and /home to allow arbitrary users to write
+RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
+
+
 RUN useradd user && \
     mkdir -p /home/user && \
     chown -R user:user /home/user && \
@@ -43,6 +48,17 @@ WORKDIR /home/user
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
     /usr/bin/python3.12 -m pip install ansible-dev-tools
 
-
 ENV TERM=xterm-256color
 ENV SHELL=/usr/bin/zsh
+ENV HOME=/home/user
+
+# nodejs 18 + VSCODE_NODEJS_RUNTIME_DIR are required on ubi9 based images
+# until we fix https://github.com/eclipse/che/issues/21778
+# When fixed, we won't need this Dockerfile anymore.
+# c.f. https://github.com/che-incubator/che-code/pull/120
+RUN \
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash && \
+export NVM_DIR="$HOME/.nvm" && \
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+nvm install 18.18.0
+ENV VSCODE_NODEJS_RUNTIME_DIR="$HOME/.nvm/versions/node/v18.18.0/bin/"
