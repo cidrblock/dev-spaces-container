@@ -1,0 +1,12 @@
+schemaVersion: 2.2.2
+metadata:
+  name: dev-spaces-container
+components:
+  - name: tooling-container
+    container:
+      image: ghcr.io/cidrblock/dev-spaces-container
+      memoryRequest: 200M
+      memoryLimit: 6Gi
+      cpuRequest: 250m
+      cpuLimit: 2000m
+      args: ['tail', '-f', '/dev/null']
