@@ -30,16 +30,9 @@ RUN \
     cd - && \
     rm -rf "${TEMP_DIR}"
 
-
-
-
-
 RUN useradd -m -d /home/user user && \
     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chsh -s $(which zsh) user
-
-# Set permissions on /etc/passwd and /home to allow arbitrary users to write
-RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
 
 USER user
 WORKDIR /home/user
@@ -63,3 +56,8 @@ export NVM_DIR="$HOME/.nvm" && \
 nvm install 18.18.0
 ENV VSCODE_NODEJS_RUNTIME_DIR="$HOME/.nvm/versions/node/v18.18.0/bin/"
 
+
+USER root
+# Set permissions on /etc/passwd and /home to allow arbitrary users to write
+RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
+USER user
