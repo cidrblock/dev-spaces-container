@@ -38,6 +38,7 @@ RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_
 # Configure the podman wrapper
 RUN mv /usr/bin/podman /usr/bin/podman.orig
 COPY --chown=0:0 podman-wrapper.sh /usr/bin/podman
+RUN chmod +x /usr/bin/podman
 
 RUN useradd -m -d /home/user user && \
     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
