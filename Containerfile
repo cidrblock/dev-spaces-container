@@ -2,7 +2,7 @@
 FROM registry.fedoraproject.org/fedora-minimal:latest as builder
 
 
-RUN microdnf -y install git sudo tar which zsh python3.12 && \
+RUN microdnf -y install git sudo tar which zsh podman python3.12 && \
     microdnf clean all && \
     /usr/bin/python3.12 -m ensurepip --default-pip && \
     /usr/bin/python3.12 -m pip install --upgrade pip
@@ -36,7 +36,7 @@ RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_
     && chmod +x /usr/local/bin/kubedock
 
 # Configure the podman wrapper
-# RUN mv /usr/bin/podman /usr/bin/podman.orig
+RUN mv /usr/bin/podman /usr/bin/podman.orig
 COPY --chown=0:0 podman-wrapper.sh /usr/bin/podman
 
 RUN useradd -m -d /home/user user && \
