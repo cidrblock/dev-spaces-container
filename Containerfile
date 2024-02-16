@@ -55,6 +55,8 @@ ENV SHELL=/usr/bin/zsh
 ENV HOME=/home/user
 # fix for zsh perms check
 ENV ZSH_DISABLE_COMPFIX=true
+# kubedock
+ENV CONTAINER_HOST=tcp://127.0.0.1:2475
 
 # nodejs 18 + VSCODE_NODEJS_RUNTIME_DIR are required on ubi9 based images
 # until we fix https://github.com/eclipse/che/issues/21778
