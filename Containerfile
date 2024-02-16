@@ -36,7 +36,7 @@ RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_
     && chmod +x /usr/local/bin/kubedock
 
 # Configure the podman wrapper
-RUN mv /usr/bin/podman /usr/bin/podman.orig
+# RUN mv /usr/bin/podman /usr/bin/podman.orig
 COPY --chown=0:0 podman-wrapper.sh /usr/bin/podman
 
 RUN useradd -m -d /home/user user && \
