@@ -20,7 +20,7 @@ FROM registry.fedoraproject.org/fedora-minimal:latest
 
 COPY --from=kubedock /app /usr/local/bin
 
-RUN microdnf -y install git sudo tar which zsh podman python3.12 stow && \
+RUN microdnf -y install git sudo tar which zsh podman python3.12 nodejs && \
     microdnf clean all && \
     /usr/bin/python3.12 -m ensurepip --default-pip && \
     /usr/bin/python3.12 -m pip install --upgrade pip
@@ -48,6 +48,9 @@ RUN \
     cd - && \
     rm -rf "${TEMP_DIR}"
 
+
+
+
 # Configure the podman wrapper
 COPY --chown=0:0 podman.py /usr/bin/podman.wrapper
 RUN chmod +x /usr/bin/podman.wrapper
@@ -65,6 +68,17 @@ RUN useradd -m -d /home/user user && \
 USER user
 ENV HOME=/home/user
 WORKDIR /home/user
+
+# nodejs 18 + VSCODE_NODEJS_RUNTIME_DIR are required on ubi9 based images
+# until we fix https://github.com/eclipse/che/issues/21778
+# When fixed, we won't need this Dockerfile anymore.
+# c.f. https://github.com/che-incubator/che-code/pull/120
+RUN \
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash && \
+export NVM_DIR="$HOME/.nvm" && \
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+nvm install 18.18.0
+ENV VSCODE_NODEJS_RUNTIME_DIR="$HOME/.nvm/versions/node/v18.18.0/bin/"
 
 # Install oh-my-zsh and ansible-dev-tools
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
