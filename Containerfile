@@ -20,7 +20,7 @@ FROM registry.fedoraproject.org/fedora-minimal:latest
 
 COPY --from=kubedock /app /usr/local/bin
 
-RUN microdnf -y install git sudo tar which zsh podman python3.12 nodejs && \
+RUN microdnf -y install git sudo tar which zsh podman python3.12 && \
     microdnf clean all && \
     /usr/bin/python3.12 -m ensurepip --default-pip && \
     /usr/bin/python3.12 -m pip install --upgrade pip
