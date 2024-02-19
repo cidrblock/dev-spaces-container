@@ -86,6 +86,7 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 
 # Create symbolic links from /home/tooling/ -> /home/user/
+RUN mkdir /home/user
 RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
 
 # cleanup dnf cache
