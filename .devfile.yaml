@@ -11,6 +11,6 @@ components:
       cpuLimit: 2000m
       args: ['tail', '-f', '/dev/null']
       env:
-        - name: KUBEDOC_ENABLED
+        - name: KUBEDOCK_ENABLED
           value: "true"
     
