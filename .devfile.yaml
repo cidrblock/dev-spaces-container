@@ -13,4 +13,6 @@ components:
       env:
         - name: KUBEDOCK_ENABLED
           value: "true"
+        - name: KUBECONFIG
+          value: "/home/user/.kube/config"
     
