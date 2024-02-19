@@ -93,4 +93,5 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 USER user
 ENV SHELL=/usr/bin/zsh
+ENV KUBECONFIG=/home/user/.kube/config
 

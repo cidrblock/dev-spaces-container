@@ -5,7 +5,10 @@ import sys
 
 ARGS = sys.argv
 
-ARGS.remove("--interactive")
-ARGS.remove("--user=root")
+try:
+    ARGS.remove("--interactive")
+    ARGS.remove("--user=root")
+except ValueError:
+    pass
 
 os.execvp(ARGS[0], ARGS)
