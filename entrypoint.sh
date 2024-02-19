@@ -47,6 +47,8 @@ else
     ln -f -s /usr/bin/podman.orig /home/user/.local/bin/podman
 fi
 
+cp -R /home/tooling/. /home/user
+
 
 # # Stow
 # ## Required for https://github.com/eclipse/che/issues/22412

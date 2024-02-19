@@ -20,7 +20,7 @@ FROM registry.fedoraproject.org/fedora-minimal:latest
 
 COPY --from=kubedock /app /usr/local/bin
 
-RUN microdnf -y install git sudo tar which zsh podman python3.12 && \
+RUN microdnf -y install git sudo tar which stow zsh podman python3.12 && \
     microdnf clean all && \
     /usr/bin/python3.12 -m ensurepip --default-pip && \
     /usr/bin/python3.12 -m pip install --upgrade pip
@@ -85,10 +85,8 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 # Set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 
-# Clean up the zsh dirs
-RUN chmod -R 700 /home/user/.oh-my-zsh
-
-
+# Create symbolic links from /home/tooling/ -> /home/user/
+RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
 
 # cleanup dnf cache
 COPY entrypoint.sh /
@@ -102,3 +100,4 @@ ENV KUBECONFIG=/home/user/.kube/config
 ENV KUBEDOCK_ENABLED=true
 ENV CONTAINER_HOST=tcp://127.0.0.1:2475
 
+ENV HOME=/home/user
