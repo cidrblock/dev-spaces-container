@@ -85,6 +85,11 @@ USER root
 # Set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 
+# Clean up the zsh dirs
+RUN chmod -R 700 /home/user/.oh-my-zsh
+
+
+
 # cleanup dnf cache
 COPY entrypoint.sh /
 RUN chmod 777 /entrypoint.sh
