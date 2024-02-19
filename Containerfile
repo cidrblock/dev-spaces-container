@@ -59,7 +59,8 @@ RUN chmod +x /entrypoint.sh
 
 
 # Set the perm for /home/tooling
-RUN chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
+
+RUN mkdir /home/tooling && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 # Create a non-root user
 RUN useradd -m -d /home/user user && \
