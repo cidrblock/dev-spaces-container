@@ -44,7 +44,7 @@ else
     echo "Kubedock is disabled. It can be enabled with the env variable \"KUBEDOCK_ENABLED=true\""
     echo "set in the workspace Devfile or in a Kubernetes ConfigMap in the developer namespace."
     echo
-    ln -f -s /usr/bin/podman.orig /home/tooling/.local/bin/podman
+    ln -f -s /usr/bin/podman.orig /home/user/.local/bin/podman
 fi
 
 
