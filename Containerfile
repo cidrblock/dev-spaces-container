@@ -20,7 +20,7 @@ FROM registry.fedoraproject.org/fedora-minimal:latest
 
 COPY --from=kubedock /app /usr/local/bin
 
-RUN microdnf -y install git sudo tar which zsh podman python3.12 && \
+RUN microdnf -y install git sudo tar which zsh podman python3.12 stow && \
     microdnf clean all && \
     /usr/bin/python3.12 -m ensurepip --default-pip && \
     /usr/bin/python3.12 -m pip install --upgrade pip
@@ -53,13 +53,8 @@ COPY --chown=0:0 podman.py /usr/bin/podman.wrapper
 RUN chmod +x /usr/bin/podman.wrapper
 RUN mv /usr/bin/podman /usr/bin/podman.orig
 
-# Add the entrypoint
-COPY --chown=0:0 entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
 
 # Set the perm for /home/tooling
-
 RUN mkdir /home/tooling && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 # Create a non-root user
@@ -67,24 +62,20 @@ RUN useradd -m -d /home/user user && \
     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chsh -s $(which zsh) user
 
-ENV HOME=/home/tooling
-WORKDIR /home/tooling
-
+USER user
+ENV HOME=/home/user
+WORKDIR /home/user
 
 # Install oh-my-zsh and ansible-dev-tools
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
     /usr/bin/python3.12 -m pip install ansible-dev-tools
 
+USER root
+# Set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write
+RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 
-ENTRYPOINT ["/entrypoint.sh"]
+# cleanup dnf cache
+COPY --chown=0:0 entrypoint.sh /
 
-# Set permissions on /etc/passwd and /home to allow arbitrary users to write
-RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
-
-
-# Set the user
 USER user
-# Convenience envs
-# fix for zsh perms check
-ENV ZSH_DISABLE_COMPFIX=true
 
