@@ -11,4 +11,6 @@ try:
 except ValueError:
     pass
 
+ARGS[0] = "podman.orig"
+    
 os.execvp(ARGS[0], ARGS)
