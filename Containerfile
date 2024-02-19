@@ -1,6 +1,24 @@
+####################
+## Build kubedock ## ----------------------------------------------------------
+####################
 
-FROM registry.fedoraproject.org/fedora-minimal:latest as builder
+FROM docker.io/golang:1.21 AS kubedock
 
+ARG KD_REPO=https://github.com/joyrex2001/kubedock
+
+RUN git clone ${KD_REPO} \
+    && cd kubedock \
+    && make test build \
+    && mkdir /app \
+    && cp kubedock /app
+
+
+#################
+## Final image ## ------------------------------------------------------------
+#################
+FROM registry.fedoraproject.org/fedora-minimal:latest
+
+COPY --from=kubedock /app /usr/local/bin
 
 RUN microdnf -y install git sudo tar which zsh podman python3.12 && \
     microdnf clean all && \
@@ -31,9 +49,9 @@ RUN \
     rm -rf "${TEMP_DIR}"
 
 # Install kubedock
-ENV KUBEDOCK_VERSION 0.13.0
-RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz \
-    && chmod +x /usr/local/bin/kubedock
+# ENV KUBEDOCK_VERSION 0.13.0
+# RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz \
+#     && chmod +x /usr/local/bin/kubedock
 
 # # Configure the podman wrapper
 # RUN mv /usr/bin/podman /usr/bin/podman.orig
