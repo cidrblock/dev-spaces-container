@@ -57,9 +57,6 @@ RUN chmod +x /usr/bin/podman.wrapper
 RUN mv /usr/bin/podman /usr/bin/podman.orig
 
 
-# Set the perm for /home/tooling
-RUN mkdir /home/tooling && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
-
 # Create a non-root user
 RUN useradd -m -d /home/user user && \
     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
@@ -89,7 +86,10 @@ USER root
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 
 # cleanup dnf cache
-COPY --chown=0:0 entrypoint.sh /
+COPY entrypoint.sh /
+RUN chmod 766 /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
 USER user
+ENV SHELL=/usr/bin/zsh
 
