@@ -67,7 +67,6 @@ RUN useradd -m -d /home/user user && \
     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chsh -s $(which zsh) user
 
-USER user
 ENV HOME=/home/tooling
 WORKDIR /home/tooling
 
@@ -79,10 +78,13 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-USER root
 # Set permissions on /etc/passwd and /home to allow arbitrary users to write
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
 
+
+# Set the user
+USER user
 # Convenience envs
 # fix for zsh perms check
 ENV ZSH_DISABLE_COMPFIX=true
+
