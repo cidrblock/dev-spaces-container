@@ -58,13 +58,14 @@ RUN mv /usr/bin/podman /usr/bin/podman.orig
 
 
 # Create a non-root user
-RUN useradd -m -d /home/user user && \
-    echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
-    chsh -s $(which zsh) user
+# RUN useradd -m -d /home/user user && \
+#     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+#     chsh -s $(which zsh) user
 
-USER user
-ENV HOME=/home/user
-WORKDIR /home/user
+# USER user
+RUN mkdir /home/tooling
+ENV HOME=/home/tooling
+WORKDIR /home/tooling
 
 # nodejs 18 + VSCODE_NODEJS_RUNTIME_DIR are required on ubi9 based images
 # until we fix https://github.com/eclipse/che/issues/21778
@@ -81,7 +82,6 @@ ENV VSCODE_NODEJS_RUNTIME_DIR="$HOME/.nvm/versions/node/v18.18.0/bin/"
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
     /usr/bin/python3.12 -m pip install ansible-dev-tools
 
-USER root
 # Set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 
@@ -92,11 +92,11 @@ RUN chmod -R 700 /home/user/.oh-my-zsh
 
 # cleanup dnf cache
 COPY entrypoint.sh /
-RUN chmod 777 /entrypoint.sh
-RUN chown -R user:user /entrypoint.sh
+RUN chmod 666 /entrypoint.sh
+# RUN chown -R user:user /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
-USER user
+# USER user
 ENV SHELL=/usr/bin/zsh
 ENV KUBECONFIG=/home/user/.kube/config
 ENV KUBEDOCK_ENABLED=true
