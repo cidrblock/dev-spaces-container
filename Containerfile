@@ -48,47 +48,40 @@ RUN \
     cd - && \
     rm -rf "${TEMP_DIR}"
 
-# Install kubedock
-# ENV KUBEDOCK_VERSION 0.13.0
-# RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz \
-#     && chmod +x /usr/local/bin/kubedock
+# Configure the podman wrapper
+COPY --chown=0:0 podman.py /usr/bin/podman.wrapper
+RUN chmod +x /usr/bin/podman.wrapper
+RUN mv /usr/bin/podman /usr/bin/podman.orig
 
-# # Configure the podman wrapper
-# RUN mv /usr/bin/podman /usr/bin/podman.orig
-# COPY --chown=0:0 podman-wrapper.sh /usr/bin/podman
-# RUN chmod +x /usr/bin/podman
+# Add the entrypoint
+COPY --chown=0:0 entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
+
+# Set the perm for /home/tooling
+RUN chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
+
+# Create a non-root user
 RUN useradd -m -d /home/user user && \
     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chsh -s $(which zsh) user
 
 USER user
-WORKDIR /home/user
+ENV HOME=/home/tooling
+WORKDIR /home/tooling
 
+
+# Install oh-my-zsh and ansible-dev-tools
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
     /usr/bin/python3.12 -m pip install ansible-dev-tools
 
-ENV TERM=xterm-256color
-ENV SHELL=/usr/bin/zsh
-ENV HOME=/home/user
-# fix for zsh perms check
-ENV ZSH_DISABLE_COMPFIX=true
-# kubedock
-ENV CONTAINER_HOST=tcp://127.0.0.1:2475
 
-# nodejs 18 + VSCODE_NODEJS_RUNTIME_DIR are required on ubi9 based images
-# until we fix https://github.com/eclipse/che/issues/21778
-# When fixed, we won't need this Dockerfile anymore.
-# c.f. https://github.com/che-incubator/che-code/pull/120
-RUN \
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash && \
-export NVM_DIR="$HOME/.nvm" && \
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
-nvm install 18.18.0
-ENV VSCODE_NODEJS_RUNTIME_DIR="$HOME/.nvm/versions/node/v18.18.0/bin/"
-
+ENTRYPOINT ["/entrypoint.sh"]
 
 USER root
 # Set permissions on /etc/passwd and /home to allow arbitrary users to write
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
-USER user
+
+# Convenience envs
+# fix for zsh perms check
+ENV ZSH_DISABLE_COMPFIX=true
