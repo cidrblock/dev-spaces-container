@@ -35,7 +35,7 @@ COPY --from=kubedock /app /usr/local/bin
 
 USER 0
 
-# System libs
+# General pkgs
 RUN dnf -y install stow
 
 # $PROFILE_EXT contains all additions made to the bash environment
