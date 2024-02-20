@@ -59,7 +59,20 @@ RUN chmod +x /usr/bin/podman.wrapper
 RUN mv /usr/bin/podman /usr/bin/podman.orig
 
 # Install oh-my-zsh and ansible-dev-tools
-RUN 
+# nodejs 18 + VSCODE_NODEJS_RUNTIME_DIR are required on ubi9 based images
+# until we fix https://github.com/eclipse/che/issues/21778
+# When fixed, we won't need this Dockerfile anymore.
+# c.f. https://github.com/che-incubator/che-code/pull/120
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash && \
+    export NVM_DIR="$HOME/.nvm" && \
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+    nvm install 18.18.0
+
+# oh-my-zsh
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+# Install ansible-dev-tools
+RUN /usr/bin/python3.12 -m pip install ansible-dev-tools
 
 COPY --chown=0:0 entrypoint.sh /
 COPY --chown=0:0 .stow-local-ignore /home/tooling/
@@ -86,27 +99,7 @@ RUN \
     # Bash-related files are backed up to /home/tooling/ incase they are deleted when persistUserHome is enabled.
     cp /home/user/.bashrc /home/tooling/.bashrc && \
     cp /home/user/.bash_profile /home/tooling/.bash_profile && \
-    chown 10001 /home/tooling/.bashrc /home/tooling/.bash_profile && \
-    # nodejs 18 + VSCODE_NODEJS_RUNTIME_DIR are required on ubi9 based images
-    # until we fix https://github.com/eclipse/che/issues/21778
-    # When fixed, we won't need this Dockerfile anymore.
-    # c.f. https://github.com/che-incubator/che-code/pull/120
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash && \
-    export NVM_DIR="$HOME/.nvm" && \
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
-    nvm install 18.18.0 && \
-    cp -R /home/user/.nvm /home/tooling/.nvm && \
-    # zsh
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
-    cp -R /home/user/.oh-my-zsh /home/tooling/.oh-my-zsh && \
-    cp /home/user/.zshrc /home/tooling/.zshrc && \
-    # dev tools
-    /usr/bin/python3.12 -m pip install ansible-dev-tools $$ \
-    cp -R /home/user/.local/lib /home/tooling/.local/lib && \
-    cp -R /home/user/.local/bin /home/tooling/.local/bin
-
-
-
+    chown 10001 /home/tooling/.bashrc /home/tooling/.bash_profile
 
 ENV KUBECONFIG=/home/user/.kube/config
 ENV KUBEDOCK_ENABLED=true
