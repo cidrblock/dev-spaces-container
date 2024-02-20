@@ -73,7 +73,8 @@ RUN \
     # Copy the global git configuration to user config as global /etc/gitconfig
     # file may be overwritten by a mounted file at runtime
     # cp /etc/gitconfig ${HOME}/.gitconfig && \
-    chown 10001 ${HOME}/ ${HOME}/.viminfo ${HOME}/.gitconfig ${HOME}/.stow-local-ignore && \
+    chown 10001 ${HOME}/.stow-local-ignore && \
+    # chown 10001 ${HOME}/ ${HOME}/.viminfo ${HOME}/.gitconfig ${HOME}/.stow-local-ignore && \
     # Set permissions on /etc/passwd and /home to allow arbitrary users to write
     chgrp -R 0 /home && \
     chmod -R g=u /etc/passwd /etc/group /home && \
@@ -81,7 +82,7 @@ RUN \
     # Create symbolic links from /home/tooling/ -> /home/user/
     stow . -t /home/user/ -d /home/tooling/ && \
     # .viminfo cannot be a symbolic link for security reasons, so copy it to /home/user/
-    cp /home/tooling/.viminfo /home/user/.viminfo && \
+    # cp /home/tooling/.viminfo /home/user/.viminfo && \
     # Bash-related files are backed up to /home/tooling/ incase they are deleted when persistUserHome is enabled.
     cp /home/user/.bashrc /home/tooling/.bashrc && \
     cp /home/user/.bash_profile /home/tooling/.bash_profile && \
