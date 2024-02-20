@@ -49,7 +49,9 @@ RUN \
     rm -rf "${TEMP_DIR}"
 
 
-
+USER 0
+ENV HOME=/home/tooling
+RUN mkdir -p /home/tooling/
 
 # Configure the podman wrapper
 COPY --chown=0:0 podman.py /usr/bin/podman.wrapper
@@ -57,15 +59,6 @@ RUN chmod +x /usr/bin/podman.wrapper
 RUN mv /usr/bin/podman /usr/bin/podman.orig
 
 
-# Create a non-root user
-# RUN useradd -m -d /home/user user && \
-#     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
-#     chsh -s $(which zsh) user
-
-# USER user
-RUN mkdir /home/tooling
-ENV HOME=/home/tooling
-WORKDIR /home/tooling
 
 # nodejs 18 + VSCODE_NODEJS_RUNTIME_DIR are required on ubi9 based images
 # until we fix https://github.com/eclipse/che/issues/21778
@@ -82,23 +75,40 @@ ENV VSCODE_NODEJS_RUNTIME_DIR="$HOME/.nvm/versions/node/v18.18.0/bin/"
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
     /usr/bin/python3.12 -m pip install ansible-dev-tools
 
-# Set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write
-RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
+COPY --chown=0:0 entrypoint.sh /
+COPY --chown=0:0 .stow-local-ignore /home/tooling/
+RUN \
+    # add user and configure it
+    useradd -u 10001 -G wheel,root -d /home/user --shell /usr/bin/bash -m user && \
+    # Setup $PS1 for a consistent and reasonable prompt
+    # touch /etc/profile.d/udi_prompt.sh && \
+    # chown 10001 /etc/profile.d/udi_prompt.sh && \
+    # echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> /etc/profile.d/udi_prompt.sh && \
+    # Copy the global git configuration to user config as global /etc/gitconfig
+    # file may be overwritten by a mounted file at runtime
+    cp /etc/gitconfig ${HOME}/.gitconfig && \
+    chown 10001 ${HOME}/ ${HOME}/.viminfo ${HOME}/.gitconfig ${HOME}/.stow-local-ignore && \
+    # Set permissions on /etc/passwd and /home to allow arbitrary users to write
+    chgrp -R 0 /home && \
+    chmod -R g=u /etc/passwd /etc/group /home && \
+    chmod +x /entrypoint.sh && \
+    # Create symbolic links from /home/tooling/ -> /home/user/
+    stow . -t /home/user/ -d /home/tooling/ && \
+    # .viminfo cannot be a symbolic link for security reasons, so copy it to /home/user/
+    cp /home/tooling/.viminfo /home/user/.viminfo && \
+    # Bash-related files are backed up to /home/tooling/ incase they are deleted when persistUserHome is enabled.
+    cp /home/user/.bashrc /home/tooling/.bashrc && \
+    cp /home/user/.bash_profile /home/tooling/.bash_profile && \
+    chown 10001 /home/tooling/.bashrc /home/tooling/.bash_profile
 
-# Create symbolic links from /home/tooling/ -> /home/user/
-RUN mkdir /home/user
-RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
 
-# cleanup dnf cache
-COPY entrypoint.sh /
-RUN chmod 666 /entrypoint.sh
-# RUN chown -R user:user /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
-
-# USER user
-ENV SHELL=/usr/bin/zsh
 ENV KUBECONFIG=/home/user/.kube/config
 ENV KUBEDOCK_ENABLED=true
 ENV CONTAINER_HOST=tcp://127.0.0.1:2475
 
+USER 10001
 ENV HOME=/home/user
+WORKDIR /projects
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ["tail", "-f", "/dev/null"]
+
