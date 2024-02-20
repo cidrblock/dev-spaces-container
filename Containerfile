@@ -16,7 +16,7 @@ RUN git clone ${KD_REPO} \
 #################
 ## Final image ## ------------------------------------------------------------
 #################
-FROM quay.io/devfile/base-developer-image:ubi8-latest
+FROM quay.io/devfile/base-developer-image:ubi9-latest
 LABEL maintainer="Red Hat, Inc."
 
 LABEL com.redhat.component="devfile-universal-container"
@@ -34,11 +34,14 @@ LABEL io.openshift.expose-services=""
 COPY --from=kubedock /app /usr/local/bin
 
 USER 0
+
+##  python
 RUN dnf -y install podman python3.12 && \
     dnf clean all && \
     /usr/bin/python3.12 -m ensurepip --default-pip && \
     /usr/bin/python3.12 -m pip install --upgrade pip
     
+# root
 ## kubectl
 RUN <<EOF
 set -euf -o pipefail
@@ -77,14 +80,14 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
-# dev tools
+# dev tools as root
 RUN /usr/bin/python3.12 -m pip install ansible-dev-tools
 
 
-# Create symbolic links from /home/tooling/ -> /home/user/
+# Create symbolic links from /home/tooling/ -> /home/user/ as root
 RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
 
-# Set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write
+# Set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write as root
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 
 # cleanup dnf cache
