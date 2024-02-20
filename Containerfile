@@ -33,6 +33,7 @@ LABEL io.k8s.display-name="devfile-developer-universal"
 LABEL io.openshift.expose-services=""
 COPY --from=kubedock /app /usr/local/bin
 
+USER 0
 RUN dnf -y install podman python3.12 && \
     dnf clean all && \
     /usr/bin/python3.12 -m ensurepip --default-pip && \
@@ -76,7 +77,8 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
-
+# dev tools
+RUN /usr/bin/python3.12 -m pip install ansible-dev-tools
 
 
 # Create symbolic links from /home/tooling/ -> /home/user/
@@ -87,6 +89,7 @@ RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
+
 
 COPY --chown=0:0 entrypoint.sh /
 
