@@ -35,12 +35,10 @@ COPY --from=kubedock /app /usr/local/bin
 
 USER 0
 
-##  python
-RUN dnf -y install podman python3.11 && \
-    /usr/bin/python3.11 -m ensurepip --default-pip && \
-    /usr/bin/python3.11 -m pip install --upgrade pip
+# $PROFILE_EXT contains all additions made to the bash environment
+ENV PROFILE_EXT=/etc/profile.d/udi_environment.sh
+RUN touch ${PROFILE_EXT} & chown 10001 ${PROFILE_EXT}
     
-# root
 ## kubectl
 RUN <<EOF
 set -euf -o pipefail
@@ -60,7 +58,6 @@ curl -sSL -o ~/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl
 echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> ${PROFILE_EXT}
 EOF
 
-
 ## helm
 RUN <<EOF
 set -euf -o pipefail
@@ -79,8 +76,14 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
-# dev tools as root
-RUN /usr/bin/python3.12 -m pip install ansible-dev-tools
+##  python
+ARG PYTHON=python3.11
+RUN dnf -y install podman python${PYTHON} && \
+    /usr/bin/${PYTHON} -m ensurepip --default-pip && \
+    /usr/bin/${PYTHON} -m pip install --upgrade pip
+
+## Ansible dev tools
+RUN /usr/bin/${PYTHON} -m pip install ansible-dev-tools
 
 
 # Create symbolic links from /home/tooling/ -> /home/user/ as root
