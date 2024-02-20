@@ -72,7 +72,7 @@ RUN \
     # echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> /etc/profile.d/udi_prompt.sh && \
     # Copy the global git configuration to user config as global /etc/gitconfig
     # file may be overwritten by a mounted file at runtime
-    cp /etc/gitconfig ${HOME}/.gitconfig && \
+    # cp /etc/gitconfig ${HOME}/.gitconfig && \
     chown 10001 ${HOME}/ ${HOME}/.viminfo ${HOME}/.gitconfig ${HOME}/.stow-local-ignore && \
     # Set permissions on /etc/passwd and /home to allow arbitrary users to write
     chgrp -R 0 /home && \
@@ -94,10 +94,17 @@ RUN \
     export NVM_DIR="$HOME/.nvm" && \
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
     nvm install 18.18.0 && \
+    cp -R /home/user/.nvm /home/tooling/.nvm &&
     # zsh
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
+    cp -R /home/user/.oh-my-zsh /home/tooling/.oh-my-zsh &&
+    cp /home/user/.zshrc /home/tooling/.zshrc &&
     # dev tools
-    /usr/bin/python3.12 -m pip install ansible-dev-tools
+    /usr/bin/python3.12 -m pip install ansible-dev-tools $$ \
+    cp -R /home/user/.local/lib /home/tooling/.local/lib && \
+    cp -R /home/user/.local/bin /home/tooling/.local/bin
+
+
 
 
 ENV KUBECONFIG=/home/user/.kube/config
