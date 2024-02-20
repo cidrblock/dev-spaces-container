@@ -76,9 +76,12 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
+## podman
+RUN dnf -y install podman
+
 ##  python
 ARG PYTHON=python3.11
-RUN dnf -y install podman python${PYTHON} && \
+RUN dnf -y install ${PYTHON} && \
     /usr/bin/${PYTHON} -m ensurepip --default-pip && \
     /usr/bin/${PYTHON} -m pip install --upgrade pip
 
