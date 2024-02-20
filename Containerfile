@@ -94,11 +94,11 @@ RUN \
     export NVM_DIR="$HOME/.nvm" && \
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
     nvm install 18.18.0 && \
-    cp -R /home/user/.nvm /home/tooling/.nvm &&
+    cp -R /home/user/.nvm /home/tooling/.nvm && \
     # zsh
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
-    cp -R /home/user/.oh-my-zsh /home/tooling/.oh-my-zsh &&
-    cp /home/user/.zshrc /home/tooling/.zshrc &&
+    cp -R /home/user/.oh-my-zsh /home/tooling/.oh-my-zsh && \
+    cp /home/user/.zshrc /home/tooling/.zshrc && \
     # dev tools
     /usr/bin/python3.12 -m pip install ansible-dev-tools $$ \
     cp -R /home/user/.local/lib /home/tooling/.local/lib && \
