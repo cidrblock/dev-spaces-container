@@ -102,6 +102,14 @@ RUN mv /usr/bin/podman /usr/bin/podman.orig
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
 
+COPY --chown=0:0 entrypoint.sh /
+RUN \
+    # Set permissions on /etc/passwd and /home to allow arbitrary users to write
+    # done in bas eimage but again why?
+    chgrp -R 0 /home && \
+    chmod -R g=u /etc/passwd /etc/group /home && \
+    chmod +x /entrypoint.sh
+
 USER 10001
 ENV HOME=/home/user
 WORKDIR /projects
