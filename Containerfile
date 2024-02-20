@@ -92,21 +92,18 @@ RUN cd /usr/bin \
 RUN pip install pylint yq
 
 ## Ansible dev tools
-RUN /usr/bin/${PYTHON} -m pip install ansible-dev-tools
+RUN /usr/bin/python${PYV} -m pip install ansible-dev-tools
 
-
-# Create symbolic links from /home/tooling/ -> /home/user/ as root
-RUN cp -rs /home/tooling /home/user
-
-# Set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write as root
-RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
+# Configure the podman wrapper
+COPY --chown=0:0 podman.py /usr/bin/podman.wrapper
+RUN chmod +x /usr/bin/podman.wrapper
+RUN mv /usr/bin/podman /usr/bin/podman.orig
 
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
 
-
-COPY --chown=0:0 entrypoint.sh /
-
 USER 10001
-
 ENV HOME=/home/user
+WORKDIR /projects
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ["tail", "-f", "/dev/null"]
