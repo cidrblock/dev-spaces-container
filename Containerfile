@@ -35,9 +35,6 @@ COPY --from=kubedock /app /usr/local/bin
 
 USER 0
 
-# General pkgs
-RUN dnf -y install stow
-
 # $PROFILE_EXT contains all additions made to the bash environment
 ENV PROFILE_EXT=/etc/profile.d/udi_environment.sh
 RUN touch ${PROFILE_EXT} & chown 10001 ${PROFILE_EXT}
@@ -99,7 +96,7 @@ RUN /usr/bin/${PYTHON} -m pip install ansible-dev-tools
 
 
 # Create symbolic links from /home/tooling/ -> /home/user/ as root
-RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
+RUN cp -rs /home/tooling /home/user
 
 # Set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write as root
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
