@@ -35,6 +35,9 @@ COPY --from=kubedock /app /usr/local/bin
 
 USER 0
 
+# System libs
+RUN dnf -y install stow
+
 # $PROFILE_EXT contains all additions made to the bash environment
 ENV PROFILE_EXT=/etc/profile.d/udi_environment.sh
 RUN touch ${PROFILE_EXT} & chown 10001 ${PROFILE_EXT}
@@ -80,10 +83,16 @@ EOF
 RUN dnf -y install podman
 
 ##  python
-ARG PYTHON=python3.11
-RUN dnf -y install ${PYTHON} && \
-    /usr/bin/${PYTHON} -m ensurepip --default-pip && \
-    /usr/bin/${PYTHON} -m pip install --upgrade pip
+ARG PYV=3.11
+RUN dnf -y install python${PYV} python${PYV}-devel python${PYV}-setuptools python${PYV}-pip nss_wrapper
+
+RUN cd /usr/bin \
+    && if [ ! -L python ]; then ln -s python${PYV} python; fi \
+    && if [ ! -L pydoc ]; then ln -s pydoc${PYV} pydoc; fi \
+    && if [ ! -L python-config ]; then ln -s python${PYV}-config python-config; fi \
+    && if [ ! -L pip ]; then ln -s pip-${PYV} pip; fi
+
+RUN pip install pylint yq
 
 ## Ansible dev tools
 RUN /usr/bin/${PYTHON} -m pip install ansible-dev-tools
