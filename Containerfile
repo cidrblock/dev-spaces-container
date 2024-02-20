@@ -58,22 +58,8 @@ COPY --chown=0:0 podman.py /usr/bin/podman.wrapper
 RUN chmod +x /usr/bin/podman.wrapper
 RUN mv /usr/bin/podman /usr/bin/podman.orig
 
-
-
-# nodejs 18 + VSCODE_NODEJS_RUNTIME_DIR are required on ubi9 based images
-# until we fix https://github.com/eclipse/che/issues/21778
-# When fixed, we won't need this Dockerfile anymore.
-# c.f. https://github.com/che-incubator/che-code/pull/120
-RUN \
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash && \
-export NVM_DIR="$HOME/.nvm" && \
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
-nvm install 18.18.0
-ENV VSCODE_NODEJS_RUNTIME_DIR="$HOME/.nvm/versions/node/v18.18.0/bin/"
-
 # Install oh-my-zsh and ansible-dev-tools
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
-    /usr/bin/python3.12 -m pip install ansible-dev-tools
+RUN 
 
 COPY --chown=0:0 entrypoint.sh /
 COPY --chown=0:0 .stow-local-ignore /home/tooling/
@@ -99,12 +85,26 @@ RUN \
     # Bash-related files are backed up to /home/tooling/ incase they are deleted when persistUserHome is enabled.
     cp /home/user/.bashrc /home/tooling/.bashrc && \
     cp /home/user/.bash_profile /home/tooling/.bash_profile && \
-    chown 10001 /home/tooling/.bashrc /home/tooling/.bash_profile
+    chown 10001 /home/tooling/.bashrc /home/tooling/.bash_profile && \
+    # nodejs 18 + VSCODE_NODEJS_RUNTIME_DIR are required on ubi9 based images
+    # until we fix https://github.com/eclipse/che/issues/21778
+    # When fixed, we won't need this Dockerfile anymore.
+    # c.f. https://github.com/che-incubator/che-code/pull/120
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash && \
+    export NVM_DIR="$HOME/.nvm" && \
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+    nvm install 18.18.0 && \
+    # zsh
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
+    # dev tools
+    /usr/bin/python3.12 -m pip install ansible-dev-tools
 
 
 ENV KUBECONFIG=/home/user/.kube/config
 ENV KUBEDOCK_ENABLED=true
 ENV CONTAINER_HOST=tcp://127.0.0.1:2475
+ENV VSCODE_NODEJS_RUNTIME_DIR="$HOME/.nvm/versions/node/v18.18.0/bin/"
+
 
 USER 10001
 ENV HOME=/home/user
