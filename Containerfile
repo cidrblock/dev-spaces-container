@@ -54,8 +54,8 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 EOF2
 
 dnf install -y kubectl
-curl -sSL -o ~/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases
-echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> ${PROFILE_EXT}
+# curl -sSL -o ~/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases
+# echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> ${PROFILE_EXT}
 EOF
 
 ## helm
@@ -105,7 +105,7 @@ RUN dnf -y clean all --enablerepo='*'
 COPY --chown=0:0 entrypoint.sh /
 RUN \
     # Set permissions on /etc/passwd and /home to allow arbitrary users to write
-    # done in bas eimage but again why?
+    # done in base image but again why?
     chgrp -R 0 /home && \
     chmod -R g=u /etc/passwd /etc/group /home && \
     chmod +x /entrypoint.sh
