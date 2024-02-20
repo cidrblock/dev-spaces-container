@@ -36,10 +36,9 @@ COPY --from=kubedock /app /usr/local/bin
 USER 0
 
 ##  python
-RUN dnf -y install podman python3.12 && \
-    dnf clean all && \
-    /usr/bin/python3.12 -m ensurepip --default-pip && \
-    /usr/bin/python3.12 -m pip install --upgrade pip
+RUN dnf -y install podman python3.11 && \
+    /usr/bin/python3.11 -m ensurepip --default-pip && \
+    /usr/bin/python3.11 -m pip install --upgrade pip
     
 # root
 ## kubectl
