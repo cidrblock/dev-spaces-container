@@ -1,0 +1,17 @@
+---
+version: 3
+
+dependencies:
+  ansible_core:
+    package_pip: ansible-core==2.16.3
+  ansible_runner:
+    package_pip: ansible-runner
+  python_interpreter:
+    package_system: "python3.12"
+
+images:
+  base_image:
+    name: registry.fedoraproject.org/fedora-minimal:39
+
+options:
+  package_manager_path: /usr/bin/microdnf
