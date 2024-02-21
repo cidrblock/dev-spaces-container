@@ -13,9 +13,10 @@ except ValueError:
     pass
 
 if ARGS[1] in SUPPORTED:
-    ARGS.insert(2,"tcp://127.0.0.1:2475")
-    ARGS.insert(2,"--connection")
+    os.environ["CONTIANER_HOST"] = "tcp://127.0.0.1:2475"
+else:
+    os.environ.pop("CONTIANER_HOST", None)
 
 ARGS[0] = "podman.orig"
-  
+
 os.execvp(ARGS[0], ARGS)
